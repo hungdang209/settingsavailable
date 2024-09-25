@@ -1271,20 +1271,7 @@ const ContentComponent = (props: Props) => {
                                         </Form.Item>
                                     </div>
 
-                                    <div className="item-form">
-                                        <label>Facebook page link</label>
-                                        <Form.Item
-                                            name="fanpageName"
-                                            rules={[
-                                                {
-                                                    required: true,
-                                                    message: 'Please input facebook page link!',
-                                                }
-                                            ]}
-                                        >
-                                            <Input />
-                                        </Form.Item>
-                                    </div>
+                                    
 
                                     <div className="item-form">
                                         <Form.Item
