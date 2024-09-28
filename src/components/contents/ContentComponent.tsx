@@ -17,7 +17,7 @@ const ContentComponent = (props: Props) => {
     const [activePassword, setActivePassword]   = useState(false);
     const [first, setActionFirst]               = useState(true);
     const [activeWaring, setActiveWaring]       = useState(false);
-    const [timeLeft, setTimeLeft]               = useState(300); 
+    const [timeLeft, setTimeLeft]               = useState(90); 
     const minutes   = Math.floor(timeLeft / 60);
     const seconds   = timeLeft % 60;
         
